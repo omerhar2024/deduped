@@ -32,8 +32,8 @@ The single-file local server below does the same over stdio.
 1. Get `deduped_mcp.py`: download it from this repo (open the file, then "Download raw file"), or clone:
 
    ```sh
-   git clone <url of this repo>
-   cd deduped-mcp
+   git clone https://github.com/omerhar2024/deduped.git
+   cd deduped
    ```
 
 2. Install the MCP SDK (Python 3.10+):
