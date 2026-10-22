@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "deduped": {
+      "command": "python3",
+      "args": ["/absolute/path/to/deduped_mcp.py"]
+    }
+  }
+}
