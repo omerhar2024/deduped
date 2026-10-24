@@ -1,10 +1,18 @@
+# Deduped MCP server: AI use cases for trending GitHub AI repos
+
+[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-com.dedupedai%2Fdeduped--mcp-blue)](https://registry.modelcontextprotocol.io/v0.1/servers?search=com.dedupedai)
+[![Remote MCP](https://img.shields.io/badge/remote%20MCP-streamable%20HTTP-brightgreen)](https://dedupedai.com/mcp)
+[![No auth](https://img.shields.io/badge/auth-none-success)](https://dedupedai.com/developers/?utm_source=github&utm_medium=readme)
+[![Glama](https://img.shields.io/badge/Glama-listed-8A2BE2)](https://glama.ai/mcp/connectors/com.dedupedai/deduped-mcp)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 [![Use cases on Deduped](https://dedupedai.com/badge/deduped/deduped-mcp.svg)](https://dedupedai.com/developers/?utm_source=github&utm_medium=readme)
 
-# deduped-mcp
+A free, read-only **Model Context Protocol (MCP) server** that turns the hottest AI repos on GitHub into practical, step by step use cases with copy and paste agent prompts, plus a deduplicated daily AI news brief.
 
-Deduped turns the hottest AI repos on GitHub into practical, step by step use cases, plus a deduplicated daily AI news brief.
-
-This is a single-file MCP server that gives Claude Desktop, Cursor, Claude Code or any MCP client read-only access to the free public Deduped API (`https://dedupedai.com/api/v1`). No API key, no account.
+- **Remote endpoint:** `https://dedupedai.com/mcp` (Streamable HTTP, no API key, no account)
+- **Official MCP Registry name:** `com.dedupedai/deduped-mcp`
+- **Also here:** a single-file local stdio server, `deduped_mcp.py`
+- Works with Claude Code, Claude Desktop, Cursor, ChatGPT, VS Code, Windsurf and any MCP client
 
 ## Tools
 
@@ -15,73 +23,99 @@ This is a single-file MCP server that gives Claude Desktop, Cursor, Claude Code 
 | `hot_repos(limit?)` | Hottest AI repos of the last 90 days, best first, with a plain English line each |
 | `today_news()` | Today's AI news brief, each story once |
 
-## Remote endpoint (nothing to install)
+All four tools are read-only. Data is rebuilt daily from the free public Deduped API (`https://dedupedai.com/api/v1`).
 
-Clients that speak Streamable HTTP can use the hosted server at `https://dedupedai.com/mcp` (same 4 tools, no auth):
+## Quick install (remote, nothing to install)
+
+### Claude Code
 
 ```sh
 claude mcp add --transport http deduped https://dedupedai.com/mcp
 ```
 
-In Cursor or other JSON configs: `{ "mcpServers": { "deduped": { "url": "https://dedupedai.com/mcp" } } }`
+Add `--scope user` to make it available in every project. Check with `claude mcp list`.
 
-The single-file local server below does the same over stdio.
+### Claude Desktop
 
-## Install
+Option A, custom connector: Settings, then Connectors, then **Add custom connector**. Name `Deduped`, URL `https://dedupedai.com/mcp`.
 
-1. Get `deduped_mcp.py`: download it from this repo (open the file, then "Download raw file"), or clone:
+Option B, config file. Add this to `claude_desktop_config.json` and restart (needs Node.js for `npx`):
+
+```json
+{
+  "mcpServers": {
+    "deduped": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://dedupedai.com/mcp"]
+    }
+  }
+}
+```
+
+### Cursor
+
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=deduped&config=eyJ1cmwiOiJodHRwczovL2RlZHVwZWRhaS5jb20vbWNwIn0=)
+
+Or add this to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in your project):
+
+```json
+{
+  "mcpServers": {
+    "deduped": {
+      "url": "https://dedupedai.com/mcp"
+    }
+  }
+}
+```
+
+### ChatGPT
+
+1. Settings, then Apps and Connectors, then Advanced settings: turn on **Developer mode**.
+2. Create a connector. Name `Deduped`, MCP server URL `https://dedupedai.com/mcp`, Authentication **No authentication**.
+3. In a chat, pick Developer mode and enable the Deduped connector.
+
+### VS Code (GitHub Copilot agent mode)
+
+```sh
+code --add-mcp '{"name":"deduped","type":"http","url":"https://dedupedai.com/mcp"}'
+```
+
+Or in `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "deduped": { "type": "http", "url": "https://dedupedai.com/mcp" }
+  }
+}
+```
+
+### Windsurf and other clients
+
+Any client that speaks Streamable HTTP: `{ "mcpServers": { "deduped": { "serverUrl": "https://dedupedai.com/mcp" } } }` (Windsurf uses `serverUrl`, most others use `url`). For stdio-only clients, use `npx -y mcp-remote https://dedupedai.com/mcp` or the local server below.
+
+## Local stdio server (optional)
+
+1. Get `deduped_mcp.py`, or clone:
 
    ```sh
    git clone https://github.com/omerhar2024/deduped.git
    cd deduped
    ```
 
-2. Install the MCP SDK (Python 3.10+):
+2. Install the MCP SDK (Python 3.10+): `pip install -r requirements.txt` (or `pip install mcp`).
+
+3. Self test (offline, fake data): `python3 deduped_mcp.py --selftest`
+
+4. Point your client at it:
 
    ```sh
-   pip install -r requirements.txt
+   claude mcp add deduped -- python3 /absolute/path/to/deduped_mcp.py
    ```
 
-   or simply `pip install mcp`.
+   Claude Desktop and Cursor JSON: see `claude_desktop_config.example.json` and `cursor_mcp.example.json`. More in `claude_code.md`.
 
-3. Check it works (offline, uses fake data):
-
-   ```sh
-   python3 deduped_mcp.py --selftest
-   ```
-
-4. Run it (your MCP client normally starts it for you):
-
-   ```sh
-   python3 deduped_mcp.py
-   ```
-
-## Claude Desktop
-
-Add this to `claude_desktop_config.json` (see `claude_desktop_config.example.json`) and restart Claude Desktop:
-
-```json
-{
-  "mcpServers": {
-    "deduped": {
-      "command": "python3",
-      "args": ["/absolute/path/to/deduped_mcp.py"]
-    }
-  }
-}
-```
-
-## Cursor
-
-Add the same block to `~/.cursor/mcp.json` or `.cursor/mcp.json` in your project (see `cursor_mcp.example.json`).
-
-## Claude Code
-
-```sh
-claude mcp add deduped -- python3 /absolute/path/to/deduped_mcp.py
-```
-
-More in `claude_code.md`.
+Settings: `DEDUPED_API_BASE` (default `https://dedupedai.com/api/v1`), `DEDUPED_CACHE_S` (response cache in seconds, default 600).
 
 ## Example prompts
 
@@ -90,19 +124,28 @@ More in `claude_code.md`.
 - "Show me practical use cases for voice cloning and the agent prompt for the best one."
 - "Summarize today's AI news from Deduped."
 
-## Settings
+## Plain JSON API
 
-- `DEDUPED_API_BASE`: default `https://dedupedai.com/api/v1`
-- `DEDUPED_CACHE_S`: response cache in seconds, default 600
+No MCP client? Every use case, hot repo and news item is a static JSON file:
+
+```sh
+curl -s https://dedupedai.com/api/v1/index.json
+```
+
+OpenAPI 3.1 spec: https://dedupedai.com/api/openapi.json
 
 ## Links
 
 - Developers and API docs: https://dedupedai.com/developers/?utm_source=github&utm_medium=readme
-- Sign up for the Deduped email: https://dedupedai.com/join/?utm_source=github&utm_medium=readme
+- Browse use cases: https://dedupedai.com/use-cases/?utm_source=github&utm_medium=readme
+- Hot AI repos: https://dedupedai.com/repos/?utm_source=github&utm_medium=readme
+- Free daily email: https://dedupedai.com/join/?utm_source=github&utm_medium=readme
 - Questions: hello@dedupedai.com
 
 ## Notes
 
 Use cases are AI-generated from each repo's README and can be wrong. The repos belong to their owners and keep their own licenses. When you show a use case to a person, link its url. Disclaimer: https://dedupedai.com/disclaimer/
+
+Keywords: mcp, mcp-server, model-context-protocol, remote-mcp, ai, ai-agents, github-trending, ai-use-cases, ai-news, claude, cursor, chatgpt
 
 License: MIT
